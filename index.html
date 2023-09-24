@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ChatGPT Client</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 引入Bootstrap样式 -->
+  <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <!-- 引入Bootstrap和必要的JavaScript -->
+  <!-- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> -->
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> -->
+  <!-- 新 Bootstrap4 核心 CSS 文件 -->
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+ 
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+ 
+<!-- bootstrap.bundle.min.js 用于弹窗、提示、下拉菜单，包含了 popper.min.js -->
+<script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+ 
+<!-- 最新的 Bootstrap4 核心 JavaScript 文件 -->
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.css">
+  <style>
+    body,html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+    *{
+      border-style: none;
+      overflow: hidden;
+    }
+    .chat-container {
+      overflow: hidden;
+      border-style: none;
+      width: 100%;
+      margin: 50px auto;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      overflow-y: scroll;
+      background-color: #fff;
+      padding: 20px;
+      height: 100%;
+    }
+    .user-message {
+      text-align: right;
+      color: #fff;
+      background-color: #007bff;
+      border-radius: 15px 15px 0 15px;
+      padding: 10px 15px;
+      margin-bottom: 10px;
+      max-width: 80%;
+    }
+    .gpt-message {
+      text-align: left;
+      background-color: #f2f2f2;
+      border-radius: 15px 15px 15px 0;
+      padding: 10px 15px;
+      margin-bottom: 10px;
+      max-width: 80%;
+    }
+    @media (max-width: 576px) {
+      .chat-container {
+        max-width: 90%;
+      }
+    }
+
+    #userInput{
+      height:8vh;
+      resize:none;
+      border-style: none;
+    }
+
+    #InputWrapper{
+      border-style: groove;
+      border-radius: 3vh;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container chat-container">
+    <div class="row" id="chatOutput">
+      <!-- Chat messages will be displayed here -->
+    </div>
+    <div class="form-group mt-3" id="InputWrapper">
+      <textarea class="form-control" id="userInput" placeholder="Type your message..."></textarea>
+    </div>
+    <div class="text-center mt-3">
+      <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+      <button class="btn btn-primary" data-toggle="modal" data-target="#libraryModal">Library</button>
+      <button class="btn btn-secondary" data-toggle="modal" data-target="#settingsModal">Settings</button>
+    </div>
+  </div>
+
+
+  <div class="modal" id="libraryModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Library</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div id="PromptsCenter">
+            <h2>AI Assistant</h2>
+            <ul>
+              <li><a>Mental Doctor</a><button class="btn btn-primary" onclick="mc()">Use this!</button></li>
+              <li><a>Trip Manager</a><button class="btn btn-primary" onclick="trip()">Use this!</button></li>
+              <li><a>Historian</a><button class="btn btn-primary" onclick="historian()">Use this!</button></li>
+            </ul>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 设置模态框 -->
+  <div class="modal" id="settingsModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Settings</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="apiKeyInput">API Key:</label>
+            <input type="text" class="form-control" id="apiKeyInput" placeholder="Enter your API key...">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" onclick="saveApiKey()">Save</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <script>
+    function use(content,startSelection){
+      document.getElementById('userInput').value = content;
+      var textarea = document.getElementById('userInput');
+      textarea.scrollTop = textarea.scrollHeight;
+    }
+    function mc(){
+      use("I want you to act as a mental health adviser. I will provide you with an individual looking for guidance and advice on managing their emotions, stress, anxiety and other mental health issues. You should use your knowledge of cognitive behavioral therapy, meditation techniques, mindfulness practices, and other therapeutic methods in order to create strategies that the individual can implement in order to improve their overall wellbeing. My first request is {{Your mental question}}");
+    }
+    function trip(){
+      use("I want you to act as a travel guide. I will write you my location and you will suggest a place to visit near my location. In some cases, I will also give you the type of places I will visit. You will also suggest me places of similar type that are close to my first location. My first suggestion request is {{The place you want to visit}}")
+    }
+    function historian(){
+      use("You're going to be a historian, and then I'm going to ask you a question, a rational, objective, fair interpretation of this historical issue. My question is:{{Your historic question}}")
+    }
+    let apiKey = ''; // 默认的GPT-3.5 API密钥
+    const apiEndpoint = 'https://api.openai.com/v1/engines/davinci-codex/completions'; // GPT-3.5 API的请求地址
+
+    function sendMessage() {
+      const userInput = document.getElementById('userInput').value;
+      if(apiKey == ''){
+        alert("Please set your key first!");
+      }else{
+        addMessage('user', userInput);
+
+        fetch(apiEndpoint, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            prompt: userInput,
+            max_tokens: 150,
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          const chatResponse = data.choices[0].text;
+         addMessage('gpt', chatResponse);
+        })
+       .catch(error => {
+          console.error(error);
+         addMessage('gpt', 'Error fetching response.');
+        });
+
+      // 清空输入框
+        document.getElementById('userInput').value = '';
+        }
+      
+    }
+
+    function addMessage(sender, message) {
+      const chatOutput = document.getElementById('chatOutput');
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('col-12');
+
+      if (sender === 'user') {
+        messageDiv.innerHTML = `<div class="user-message ml-auto">${message}</div>`;
+      } else {
+        messageDiv.innerHTML = `<div class="gpt-message">${message}</div>`;
+      }
+
+      chatOutput.appendChild(messageDiv);
+      // 滚动到底部
+      chatOutput.scrollTop = chatOutput.scrollHeight;
+    }
+
+    function saveApiKey() {
+      apiKey = document.getElementById('apiKeyInput').value;
+      // 关闭设置模态框
+      $('#settingsModal').modal('hide');
+    }
+  </script>
+</body>
+</html>
